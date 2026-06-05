@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Can My Grandma Use It?</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0A0A0A;
+      --s1:      #141414;
+      --s2:      #1A1A1A;
+      --border:  #252525;
+      --b2:      #1C1C1C;
+      --text:    #EBEBEB;
+      --muted:   #555;
+      --dim:     #404040;
+      --accent:  #FF5733;
+      --good:    #4ADE80;
+      --warn:    #FBBF24;
+      --bad:     #F87171;
+      --font:    'DM Sans', sans-serif;
+      --mono:    'JetBrains Mono', monospace;
+      --display: 'Syne', sans-serif;
+    }
+
+    html, body { height: 100%; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.5; }
+
+    ::-webkit-scrollbar { width: 5px; background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 3px; }
+
+    /* Layout */
+    .header { padding: 44px 20px 36px; text-align: center; border-bottom: 1px solid #161616; position: relative; }
+    .lang-switch { position: absolute; top: 18px; right: 18px; display: flex; gap: 4px; }
+    .lang-btn { padding: 5px 13px; border-radius: 8px; border: none; cursor: pointer; font-size: 12px; font-weight: 700; font-family: var(--font); background: var(--s2); color: var(--muted); transition: all .2s; }
+    .lang-btn.active { background: var(--accent); color: #fff; }
+    .grandma-icon { font-size: 50px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 20px rgba(255,87,51,.3)); }
+    h1 { font-family: var(--display); font-size: clamp(22px, 5vw, 40px); font-weight: 800; color: var(--text); letter-spacing: -.03em; margin-bottom: 8px; }
+    .subtitle { color: var(--muted); font-size: 14px; font-weight: 500; }
+
+    .main { max-width: 640px; margin: 0 auto; padding: 30px 16px 0; }
+    .results-wrap { max-width: 800px; margin: 26px auto 80px; padding: 0 16px; display: flex; flex-direction: column; gap: 14px; }
+
+    /* Card */
+    .card { background: var(--s1); border: 1px solid var(--border); border-radius: 16px; padding: 20px 22px; }
+    .card-label { font-size: 10px; font-weight: 700; color: var(--dim); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 14px; }
+
+    /* Input */
+    .input-row { display: flex; gap: 8px; }
+    .url-input { flex: 1; padding: 12px 14px; border-radius: 10px; font-size: 14px; border: 1px solid var(--border); background: #0E0E0E; color: var(--text); font-family: var(--font); transition: border-color .2s; }
+    .url-input:focus { outline: none; border-color: var(--accent); }
+    .url-input::placeholder { color: var(--dim); }
+    .check-btn { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 12px 18px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: var(--font); white-space: nowrap; transition: all .2s; box-shadow: 0 0 20px rgba(255,87,51,.3); }
+    .check-btn:disabled { background: var(--s2); color: var(--dim); cursor: not-allowed; box-shadow: none; }
+    .examples { margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .ex-label { font-size: 11px; color: var(--dim); font-weight: 600; }
+    .ex-btn { font-size: 11px; padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-family: var(--font); font-weight: 500; transition: all .15s; }
+    .ex-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .error-msg { margin-top: 12px; color: var(--bad); font-size: 13px; font-weight: 500; }
+
+    /* Loading */
+    .loading { text-align: center; padding: 60px 20px; }
+    .bounce { font-size: 46px; display: inline-block; animation: bounce 1.3s ease-in-out infinite; }
+    .load-text { margin-top: 14px; font-weight: 600; color: var(--text); font-size: 15px; }
+    .load-sub { margin-top: 6px; font-size: 12px; color: var(--dim); }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+    .fade-in { animation: fadeIn .4s ease forwards; }
+
+    /* Score section */
+    .score-top { padding: 14px 20px; border-bottom: 1px solid var(--b2); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .domain-info { display: flex; align-items: center; gap: 8px; }
+    .favicon { border-radius: 4px; }
+    .domain-name { font-size: 13px; font-weight: 600; }
+    .page-title { font-size: 11px; color: var(--dim); }
+    .status-dot { font-size: 11px; font-weight: 600; }
+    .score-body { padding: 24px 22px; display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+    .ring-wrap { text-align: center; flex-shrink: 0; }
+    .ring-label { margin-top: 6px; font-size: 12px; font-weight: 700; }
+    .score-info { flex: 1; min-width: 200px; }
+    .prob-box { background: #0E0E0E; border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin-bottom: 14px; }
+    .prob-title { font-size: 10px; color: var(--dim); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
+    .prob-number { font-family: var(--mono); font-size: 38px; font-weight: 700; }
+    .prob-sub { font-size: 13px; color: var(--muted); margin-left: 8px; }
+    .verdict-box { background: rgba(255,87,51,.05); border: 1px solid rgba(255,87,51,.15); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: #C5C5C5; line-height: 1.6; font-style: italic; }
+
+    /* Metrics */
+    .metric-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--b2); }
+    .metric-row:last-child { border-bottom: none; }
+    .metric-name { font-size: 12px; color: var(--muted); width: 140px; flex-shrink: 0; }
+    .metric-bar-track { flex: 1; height: 3px; background: rgba(255,255,255,.06); border-radius: 2px; overflow: hidden; }
+    .metric-bar-fill { height: 100%; border-radius: 2px; transition: width 1.4s cubic-bezier(.4,0,.2,1); }
+    .metric-val { font-size: 13px; font-weight: 600; font-family: var(--mono); min-width: 70px; text-align: right; }
+    .metric-unit { font-size: 10px; color: var(--dim); font-weight: 400; margin-left: 3px; }
+
+    /* Findings */
+    .finding { display: flex; gap: 10px; padding: 11px 14px; border-radius: 10px; border: 1px solid; margin-bottom: 8px; }
+    .finding:last-child { margin-bottom: 0; }
+    .finding.bad  { background: rgba(248,113,113,.07); border-color: rgba(248,113,113,.18); }
+    .finding.warn { background: rgba(251,191,36,.07);  border-color: rgba(251,191,36,.18);  }
+    .finding.good { background: rgba(74,222,128,.07);  border-color: rgba(74,222,128,.18);  }
+    .finding-emoji { font-size: 15px; flex-shrink: 0; }
+    .finding-text { font-size: 13px; line-height: 1.55; }
+    .finding.bad  .finding-text { color: #FCA5A5; }
+    .finding.warn .finding-text { color: #FDE68A; }
+    .finding.good .finding-text { color: #86EFAC; }
+
+    /* Grandma quote */
+    .quote-card { background: var(--s1); border: 1px solid var(--border); border-radius: 16px; padding: 22px; display: flex; gap: 16px; align-items: flex-start; }
+    .quote-emoji { font-size: 36px; flex-shrink: 0; }
+    .quote-text { font-size: 15px; color: var(--text); line-height: 1.7; font-style: italic; margin-bottom: 8px; }
+    .quote-by { font-size: 11px; color: var(--dim); font-weight: 600; }
+
+    /* How it works */
+    .how-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .how-card { background: var(--s1); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+    .how-icon { font-size: 24px; margin-bottom: 8px; }
+    .how-title { font-weight: 700; color: var(--text); font-size: 13px; margin-bottom: 5px; }
+    .how-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
+    .section-label { font-size: 10px; font-weight: 700; color: var(--dim); letter-spacing: .1em; text-transform: uppercase; text-align: center; margin-bottom: 0; }
+
+    /* SVG ring */
+    .ring-svg circle.track { fill: none; stroke: rgba(255,255,255,.06); stroke-width: 10; }
+    .ring-svg circle.fill  { fill: none; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1.8s cubic-bezier(.17,.84,.44,1); transform: rotate(-90deg); transform-origin: 80px 80px; }
+    .ring-svg text.score   { font-family: var(--mono); font-size: 33px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; }
+    .ring-svg text.sub     { font-family: var(--font); font-size: 10px; font-weight: 500; fill: #555; text-anchor: middle; }
+
+    @media (max-width: 480px) {
+      .how-grid { grid-template-columns: 1fr; }
+      .score-body { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="lang-switch">
+    <button class="lang-btn active" onclick="setLang('ru')" id="btn-ru">RU</button>
+    <button class="lang-btn"        onclick="setLang('en')" id="btn-en">EN</button>
+  </div>
+  <span class="grandma-icon">🧓</span>
+  <h1>Can My Grandma Use It?</h1>
+  <p class="subtitle" id="subtitle">Проверяем сайты на «бабушкопригодность»</p>
+</header>
+
+<!-- INPUT -->
+<div class="main">
+  <div class="card">
+    <div class="card-label" id="input-label">Введите адрес сайта</div>
+    <div class="input-row">
+      <input class="url-input" id="url-input" type="text"
+        placeholder="gosuslugi.ru или https://vk.com"
+        onkeydown="if(event.key==='Enter') analyze()"/>
+      <button class="check-btn" id="check-btn" onclick="analyze()">🔍 Проверить</button>
+    </div>
+    <div class="examples">
+      <span class="ex-label" id="try-label">Попробовать:</span>
+      <button class="ex-btn" onclick="setUrl('gosuslugi.ru')">gosuslugi.ru</button>
+      <button class="ex-btn" onclick="setUrl('vk.com')">vk.com</button>
+      <button class="ex-btn" onclick="setUrl('sberbank.ru')">sberbank.ru</button>
+      <button class="ex-btn" onclick="setUrl('wildberries.ru')">wildberries.ru</button>
+      <button class="ex-btn" onclick="setUrl('google.com')">google.com</button>
+    </div>
+    <div class="error-msg" id="error-msg" style="display:none"></div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading" id="loading" style="display:none">
+  <span class="bounce">🧓</span>
+  <div class="load-text" id="load-text">Надеваем очки на верёвочке…</div>
+  <div class="load-sub">DOM parsing in progress…</div>
+</div>
+
+<!-- RESULTS -->
+<div class="results-wrap" id="results" style="display:none">
+
+  <!-- Score card -->
+  <div class="card" style="padding:0">
+    <div class="score-top">
+      <div class="domain-info">
+        <img class="favicon" id="favicon" src="" width="16" height="16" alt=""
+          onerror="this.style.display='none'"/>
+        <span class="domain-name" id="res-hostname"></span>
+        <span class="page-title" id="res-title"></span>
+      </div>
+      <span class="status-dot" id="res-status" style="color:#4ADE80">● analyzed</span>
+    </div>
+    <div class="score-body">
+      <div class="ring-wrap">
+        <svg class="ring-svg" width="160" height="160" viewBox="0 0 160 160" id="ring-svg">
+          <circle class="track" cx="80" cy="80" r="64"/>
+          <circle class="fill"  cx="80" cy="80" r="64" id="ring-fill"
+            stroke-dasharray="402.12" stroke-dashoffset="402.12"/>
+          <text class="score" id="ring-score" x="80" y="73" fill="#fff">0</text>
+          <text class="sub" x="80" y="91">/ 100</text>
+        </svg>
+        <div class="ring-label" id="ring-label"></div>
+      </div>
+      <div class="score-info">
+        <div class="card-label" id="score-title-label">GRANDMA SCORE</div>
+        <div class="prob-box">
+          <div class="prob-title" id="prob-title">ВЕРОЯТНОСТЬ УСПЕХА</div>
+          <div>
+            <span class="prob-number" id="prob-number">0%</span>
+            <span class="prob-sub" id="prob-sub">бабушка справится</span>
+          </div>
+        </div>
+        <div class="verdict-box" id="verdict-text"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Metrics -->
+  <div class="card">
+    <div class="card-label">▸ Metrics</div>
+    <div id="metrics-list"></div>
+  </div>
+
+  <!-- Findings -->
+  <div class="card">
+    <div class="card-label" id="findings-label">▸ Что нашли</div>
+    <div id="findings-list"></div>
+  </div>
+
+  <!-- Quote -->
+  <div class="quote-card">
+    <span class="quote-emoji">🧓</span>
+    <div>
+      <div class="quote-text" id="quote-text"></div>
+      <div class="quote-by" id="quote-by">— Среднестатистическая бабушка</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="main" id="how-section" style="padding-bottom:60px">
+  <p class="section-label" id="how-title" style="margin-bottom:14px">Как это работает</p>
+  <div class="how-grid" id="how-grid"></div>
+</div>
+
+<script>
+// ── i18n ────────────────────────────────────────────────────────────────────
+const T = {
+  ru: {
+    subtitle: 'Проверяем сайты на «бабушкопригодность»',
+    inputLabel: 'Введите адрес сайта',
+    ph: 'gosuslugi.ru или https://vk.com',
+    btn: '🔍 Проверить',
+    tryLabel: 'Попробовать:',
+    err: 'Не удалось загрузить. Попробуйте другой URL.',
+    loadMsgs: ['Надеваем очки на верёвочке…','Считаем непонятные кнопки…','Ищем шрифт покрупнее…','Спрашиваем соседку Люду…','Замеряем уровень паники…','Анализируем с пристрастием…'],
+    scoreLabel: s => s>=80?'😊 Бабушка справится!':s>=60?'🤔 Бабушка попробует…':s>=40?'😤 Бабушка нервничает':'😱 Бабушка уже ушла!',
+    probTitle: 'ВЕРОЯТНОСТЬ УСПЕХА',
+    probSub: 'бабушка справится',
+    scoreTitle: 'GRANDMA SCORE',
+    findings: '▸ Что нашли',
+    mLabel: { buttons:'Кнопки', inputs:'Поля ввода', menuDepth:'Глубина меню', links:'Ссылок', techTerms:'Техтерминов', wordCount:'Слов', complexity:'Сложность' },
+    mUnit: { buttons:'кн.', inputs:'пол.', menuDepth:'ур.', links:'сс.', techTerms:'тм.', wordCount:'сл.', complexity:'' },
+    howTitle: 'Как это работает',
+    how: [
+      { i:'🖥️', t:'DOM-парсинг', d:'Кнопки, поля ввода, ссылки, глубина меню' },
+      { i:'⚖️', t:'UX-правила', d:'10 кнопок → плохо. 3 уровня меню → плохо. Нет CTA → плохо.' },
+      { i:'🔢', t:'Scoring', d:'complexity = кнопки + поля×2 + меню×3 + слова/80' },
+      { i:'😄', t:'Вердикт', d:'Конкретные объяснения без нейросетей' },
+    ],
+    grandmaOf: '— Среднестатистическая бабушка',
+    analyzed: '● проанализирован',
+  },
+  en: {
+    subtitle: 'Testing websites for grandma-friendliness',
+    inputLabel: 'Enter website address',
+    ph: 'google.com or https://amazon.com',
+    btn: '🔍 Check',
+    tryLabel: 'Try:',
+    err: 'Failed to load. Try a different URL.',
+    loadMsgs: ['Adjusting reading glasses…','Counting all the tiny buttons…','Looking for a bigger font…','Asking neighbor Dorothy…','Measuring panic levels…','Analyzing thoroughly…'],
+    scoreLabel: s => s>=80?'😊 Grandma can do it!':s>=60?'🤔 Grandma will try…':s>=40?'😤 Grandma is nervous':'😱 Grandma already left!',
+    probTitle: 'SUCCESS PROBABILITY',
+    probSub: 'grandma will succeed',
+    scoreTitle: 'GRANDMA SCORE',
+    findings: '▸ What we found',
+    mLabel: { buttons:'Buttons', inputs:'Input fields', menuDepth:'Menu depth', links:'Links', techTerms:'Tech terms', wordCount:'Words', complexity:'Complexity' },
+    mUnit: { buttons:'btns', inputs:'flds', menuDepth:'lvls', links:'lnks', techTerms:'trms', wordCount:'wds', complexity:'' },
+    howTitle: 'How it works',
+    how: [
+      { i:'🖥️', t:'DOM Parsing', d:'Buttons, inputs, links, navigation depth' },
+      { i:'⚖️', t:'UX Rules', d:'10 buttons → bad. 3 menu levels → bad. No CTA → bad.' },
+      { i:'🔢', t:'Scoring', d:'complexity = buttons + inputs×2 + menuDepth×3 + words/80' },
+      { i:'😄', t:'Verdict', d:'Specific explanations without AI' },
+    ],
+    grandmaOf: '— Average Grandma',
+    analyzed: '● analyzed',
+  },
+};
+
+let lang = 'ru';
+let loadInterval = null;
+let loadIdx = 0;
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btn-ru').classList.toggle('active', l==='ru');
+  document.getElementById('btn-en').classList.toggle('active', l==='en');
+  const t = T[l];
+  document.getElementById('subtitle').textContent       = t.subtitle;
+  document.getElementById('input-label').textContent    = t.inputLabel;
+  document.getElementById('url-input').placeholder      = t.ph;
+  document.getElementById('check-btn').textContent      = t.btn;
+  document.getElementById('try-label').textContent      = t.tryLabel;
+  document.getElementById('prob-title').textContent     = t.probTitle;
+  document.getElementById('prob-sub').textContent       = t.probSub;
+  document.getElementById('score-title-label').textContent = t.scoreTitle;
+  document.getElementById('findings-label').textContent = t.findings;
+  document.getElementById('how-title').textContent      = t.howTitle;
+  document.getElementById('quote-by').textContent       = t.grandmaOf;
+  renderHowCards();
+  document.documentElement.lang = l;
+}
+
+function setUrl(u) { document.getElementById('url-input').value = u; }
+
+function renderHowCards() {
+  const t = T[lang];
+  document.getElementById('how-grid').innerHTML = t.how.map(h =>
+    `<div class="how-card">
+      <div class="how-icon">${h.i}</div>
+      <div class="how-title">${h.t}</div>
+      <div class="how-desc">${h.d}</div>
+    </div>`
+  ).join('');
+}
+
+function mScore(key, m) {
+  const cap = (v) => Math.max(0, Math.min(100, v));
+  switch(key) {
+    case 'buttons':    return cap(100 - Math.max(0, m.buttonCount - 3)   * 9);
+    case 'inputs':     return cap(100 - Math.max(0, m.inputCount - 2)    * 11);
+    case 'menuDepth':  return [100, 85, 55, 25, 5][Math.min(m.menuDepth, 4)];
+    case 'links':      return cap(100 - Math.max(0, m.linkCount - 15)    * 1.4);
+    case 'techTerms':  return cap(100 - m.techTermCount * 11);
+    case 'wordCount':  return cap(100 - Math.max(0, m.wordCount - 200)   * 0.065);
+    case 'complexity': return cap(100 - m.complexity * 1.8);
+    default: return 50;
+  }
+}
+
+function barColor(s) { return s >= 70 ? 'var(--good)' : s >= 40 ? 'var(--warn)' : 'var(--bad)'; }
+
+function renderMetrics(m) {
+  const t = T[lang];
+  const keys = ['buttons','inputs','menuDepth','links','techTerms','wordCount','complexity'];
+  const vals = { buttons:m.buttonCount, inputs:m.inputCount, menuDepth:m.menuDepth,
+    links:m.linkCount, techTerms:m.techTermCount, wordCount:m.wordCount, complexity:m.complexity };
+  document.getElementById('metrics-list').innerHTML = keys.map(k => {
+    const sc = mScore(k, m);
+    return `<div class="metric-row">
+      <span class="metric-name">${t.mLabel[k]}</span>
+      <div class="metric-bar-track"><div class="metric-bar-fill" style="width:${sc}%;background:${barColor(sc)}"></div></div>
+      <span class="metric-val">${vals[k]}<span class="metric-unit">${t.mUnit[k]}</span></span>
+    </div>`;
+  }).join('');
+}
+
+function renderFindings(findings) {
+  document.getElementById('findings-list').innerHTML = findings.map(f =>
+    `<div class="finding ${f.severity}">
+      <span class="finding-emoji">${f.emoji}</span>
+      <span class="finding-text">${f.text}</span>
+    </div>`
+  ).join('');
+}
+
+function animateRing(score) {
+  const circ = 402.12;
+  const fill = document.getElementById('ring-fill');
+  const scoreTxt = document.getElementById('ring-score');
+  const col = score>=80?'#4ADE80':score>=60?'#FBBF24':score>=40?'#FB923C':'#F87171';
+  fill.setAttribute('stroke', col);
+  scoreTxt.setAttribute('fill', col);
+  setTimeout(() => {
+    fill.style.strokeDashoffset = circ - (score/100)*circ;
+    scoreTxt.textContent = score;
+  }, 100);
+  document.getElementById('ring-label').style.color = col;
+}
+
+async function analyze() {
+  const url = document.getElementById('url-input').value.trim();
+  if (!url) return;
+
+  document.getElementById('error-msg').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('how-section').style.display = 'none';
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('check-btn').disabled = true;
+
+  const t = T[lang];
+  loadIdx = 0;
+  document.getElementById('load-text').textContent = t.loadMsgs[0];
+  clearInterval(loadInterval);
+  loadInterval = setInterval(() => {
+    loadIdx = (loadIdx + 1) % t.loadMsgs.length;
+    document.getElementById('load-text').textContent = t.loadMsgs[loadIdx];
+  }, 2200);
+
+  try {
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, lang }),
+      signal: AbortSignal.timeout(15000),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Server error');
+
+    clearInterval(loadInterval);
+    document.getElementById('loading').style.display = 'none';
+
+    // Populate
+    document.getElementById('res-hostname').textContent = data.metrics.hostname;
+    document.getElementById('res-title').textContent    = data.metrics.title;
+    document.getElementById('favicon').src = `https://www.google.com/s2/favicons?sz=32&domain=${data.metrics.hostname}`;
+    document.getElementById('res-status').textContent = t.analyzed;
+    document.getElementById('prob-number').textContent = data.probability + '%';
+    document.getElementById('verdict-text').textContent = `"${data.verdict}"`;
+    document.getElementById('ring-label').textContent = t.scoreLabel(data.score);
+    document.getElementById('quote-text').textContent = data.quote;
+
+    animateRing(data.score);
+    renderMetrics(data.metrics);
+    renderFindings(data.findings);
+
+    document.getElementById('results').style.display = 'flex';
+    document.getElementById('results').classList.add('fade-in');
+  } catch (err) {
+    clearInterval(loadInterval);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-msg').textContent = '⚠️ ' + (err.message || T[lang].err);
+    document.getElementById('error-msg').style.display = 'block';
+    document.getElementById('how-section').style.display = 'block';
+  }
+
+  document.getElementById('check-btn').disabled = false;
+}
+
+// Init
+renderHowCards();
+document.getElementById('how-section').style.display = 'block';
+</script>
+</body>
+</html>
