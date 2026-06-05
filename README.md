@@ -1,4 +1,4 @@
-# 🧓 Can My Grandma Use It?
+# Can My Grandma Use It?
 
 A tool that rates any website by how easy it is for non-technical users.  
 No AI — pure DOM parsing, UX heuristics and a rule-based scoring engine.
