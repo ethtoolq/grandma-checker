@@ -1,29 +1,31 @@
-# Can My Grandma Use It?
+# can my grandma use it?
 
-A tool that rates any website by how easy it is for non-technical users.  
-No AI — pure DOM parsing, UX heuristics and a rule-based scoring engine.
+paste a url, get a score on how easy the site is for non-technical users.
 
-Open source · MIT License
+## stack
 
-## How it works
+node + express + cheerio on the backend, vanilla js on the frontend. scores based on dom parsing — buttons, inputs, nav depth, jargon, text density.
 
-Parses the page and scores it based on:
-- Number of buttons, inputs, links
-- Navigation depth
-- Technical jargon
-- Text density and CTA presence
-
-Grandma Score: 42/100
-"To find the register button takes 4 clicks. Don't even try."
-
-## Stack
-
-Node.js · Express · Cheerio · Vanilla JS · EN/RU
-
-## Run locally
+## setup
 
 ```bash
 npm install
 npm run dev
-# http://localhost:3000
 ```
+
+open http://localhost:3000
+
+## how scoring works
+
+checks things like:
+- how many clicks to find the main action
+- amount of technical jargon on the page
+- text density and readability
+- presence of clear cta buttons
+
+outputs a score 0–100 and a short verdict.
+
+## notes
+
+- en and ru supported
+- MIT license
