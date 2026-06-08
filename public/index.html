@@ -202,10 +202,10 @@
     </div>
     <div class="examples">
       <span class="ex-label" id="try-label">Попробовать:</span>
-      <button class="ex-btn" onclick="setUrl('gosuslugi.ru')">gosuslugi.ru</button>
-      <button class="ex-btn" onclick="setUrl('vk.com')">vk.com</button>
-      <button class="ex-btn" onclick="setUrl('sberbank.ru')">sberbank.ru</button>
-      <button class="ex-btn" onclick="setUrl('wildberries.ru')">wildberries.ru</button>
+      <button class="ex-btn" onclick="setUrl('soundcloud.com')">soundcloud.com</button>
+      <button class="ex-btn" onclick="setUrl('youtube.com')">youtube.com</button>
+      <button class="ex-btn" onclick="setUrl('crunchyroll.com')">crunchyroll.com</button>
+      <button class="ex-btn" onclick="setUrl('twitch.tv')">twitch.tv</button>
       <button class="ex-btn" onclick="setUrl('google.com')">google.com</button>
     </div>
     <div class="error-msg" id="error-msg" style="display:none"></div>
@@ -315,12 +315,12 @@ const T = {
   ru: {
     subtitle: 'Проверяем сайты на «бабушкопригодность»',
     inputLabel: 'Введите адрес сайта',
-    ph: 'gosuslugi.ru или https://vk.com',
+    ph: 'yandex.ru или https://google.com',
     btn: '🔍 Проверить',
     tryLabel: 'Попробовать:',
     err: 'Не удалось загрузить. Попробуйте другой URL.',
     loadMsgs: ['Надеваем очки на верёвочке…','Считаем непонятные кнопки…','Ищем шрифт покрупнее…','Спрашиваем соседку Люду…','Замеряем уровень паники…','Анализируем с пристрастием…'],
-    scoreLabel: s => s>=80?'😊 Бабушка справится!':s>=60?'🤔 Бабушка попробует…':s>=40?'😤 Бабушка нервничает':'😱 Бабушка уже ушла!',
+    scoreLabel: s => s>=80?'(ᵔᴥᵔ) Бабушка справится!':s>=60?'(・・?) Бабушка попробует…':s>=40?'(╥﹏╥) Бабушка нервничает':'(ノಠ益ಠ)ノ Бабушка уже ушла!',
     probTitle: 'ВЕРОЯТНОСТЬ УСПЕХА',
     probSub: 'бабушка справится',
     scoreTitle: 'GRANDMA SCORE',
@@ -329,10 +329,10 @@ const T = {
     mUnit: { buttons:'кн.', inputs:'пол.', menuDepth:'ур.', links:'сс.', techTerms:'тм.', wordCount:'сл.', complexity:'' },
     howTitle: 'Как это работает',
     how: [
-      { i:'🖥️', t:'DOM-парсинг', d:'Кнопки, поля ввода, ссылки, глубина меню' },
-      { i:'⚖️', t:'UX-правила', d:'10 кнопок → плохо. 3 уровня меню → плохо. Нет CTA → плохо.' },
-      { i:'🔢', t:'Scoring', d:'complexity = кнопки + поля×2 + меню×3 + слова/80' },
-      { i:'😄', t:'Вердикт', d:'Конкретные объяснения без нейросетей' },
+      { i:'(・ω・)', t:'DOM-парсинг', d:'Кнопки, поля ввода, ссылки, глубина меню' },
+      { i:'(ಠ_ಠ)', t:'UX-правила', d:'10 кнопок → плохо. 3 уровня меню → плохо. Нет CTA → плохо.' },
+      { i:'(￣ー￣)', t:'Scoring', d:'complexity = кнопки + поля×2 + меню×3 + слова/80' },
+      { i:'( ゜▽゜)/', t:'Вердикт', d:'Конкретные объяснения' },
     ],
     grandmaOf: '— Среднестатистическая бабушка',
     analyzed: '● проанализирован',
@@ -345,7 +345,7 @@ const T = {
     tryLabel: 'Try:',
     err: 'Failed to load. Try a different URL.',
     loadMsgs: ['Adjusting reading glasses…','Counting all the tiny buttons…','Looking for a bigger font…','Asking neighbor Dorothy…','Measuring panic levels…','Analyzing thoroughly…'],
-    scoreLabel: s => s>=80?'😊 Grandma can do it!':s>=60?'🤔 Grandma will try…':s>=40?'😤 Grandma is nervous':'😱 Grandma already left!',
+    scoreLabel: s => s>=80?'(ᵔᴥᵔ) Grandma can do it!':s>=60?'(・・?) Grandma will try…':s>=40?'(╥﹏╥) Grandma is nervous':'(ノಠ益ಠ)ノ Grandma already left!',
     probTitle: 'SUCCESS PROBABILITY',
     probSub: 'grandma will succeed',
     scoreTitle: 'GRANDMA SCORE',
@@ -354,10 +354,10 @@ const T = {
     mUnit: { buttons:'btns', inputs:'flds', menuDepth:'lvls', links:'lnks', techTerms:'trms', wordCount:'wds', complexity:'' },
     howTitle: 'How it works',
     how: [
-      { i:'🖥️', t:'DOM Parsing', d:'Buttons, inputs, links, navigation depth' },
-      { i:'⚖️', t:'UX Rules', d:'10 buttons → bad. 3 menu levels → bad. No CTA → bad.' },
-      { i:'🔢', t:'Scoring', d:'complexity = buttons + inputs×2 + menuDepth×3 + words/80' },
-      { i:'😄', t:'Verdict', d:'Specific explanations without AI' },
+      { i:'(・ω・)', t:'DOM Parsing', d:'Buttons, inputs, links, navigation depth' },
+      { i:'(ಠ_ಠ)', t:'UX Rules', d:'10 buttons → bad. 3 menu levels → bad. No CTA → bad.' },
+      { i:'(￣ー￣)', t:'Scoring', d:'complexity = buttons + inputs×2 + menuDepth×3 + words/80' },
+      { i:'( ゜▽゜)/', t:'Verdict', d:'Specific explanations' },
     ],
     grandmaOf: '— Average Grandma',
     analyzed: '● analyzed',
