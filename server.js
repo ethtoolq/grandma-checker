@@ -1,8 +1,5 @@
 'use strict';
 
-const { File } = require('buffer');
-global.File = File;
-
 const express   = require('express');
 const cheerio   = require('cheerio');
 const rateLimit = require('express-rate-limit');
