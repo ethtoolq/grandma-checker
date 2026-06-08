@@ -130,6 +130,10 @@
     .ring-svg text.score   { font-family: var(--mono); font-size: 33px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; }
     .ring-svg text.sub     { font-family: var(--font); font-size: 10px; font-weight: 500; fill: #555; text-anchor: middle; }
 
+    /* Back button */
+    .back-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-family: var(--font); font-size: 13px; transition: all .2s; align-self: flex-start; }
+    .back-btn:hover { color: var(--text); border-color: var(--muted); }
+
     @media (max-width: 480px) {
       .how-grid { grid-template-columns: 1fr; }
       .score-body { flex-direction: column; align-items: flex-start; }
@@ -141,8 +145,8 @@
 <!-- HEADER -->
 <header class="header">
   <div class="lang-switch">
-    <button class="lang-btn active" onclick="setLang('ru')" id="btn-ru">RU</button>
-    <button class="lang-btn"        onclick="setLang('en')" id="btn-en">EN</button>
+    <button class="lang-btn active" onclick="setLang('en')" id="btn-en">EN</button>
+    <button class="lang-btn"        onclick="setLang('ru')" id="btn-ru">RU</button>
   </div>
   <span class="grandma-icon">🧓</span>
   <h1>Can My Grandma Use It?</h1>
@@ -180,6 +184,7 @@
 
 <!-- RESULTS -->
 <div class="results-wrap" id="results" style="display:none">
+  <button class="back-btn" id="back-btn" onclick="goBack()">← Back</button>
 
   <!-- Score card -->
   <div class="card" style="padding:0">
@@ -321,11 +326,21 @@ function setLang(l) {
   document.getElementById('findings-label').textContent = t.findings;
   document.getElementById('how-title').textContent      = t.howTitle;
   document.getElementById('quote-by').textContent       = t.grandmaOf;
+  document.getElementById('back-btn').textContent       = l === 'ru' ? '← Назад' : '← Back';
   renderHowCards();
   document.documentElement.lang = l;
 }
 
 function setUrl(u) { document.getElementById('url-input').value = u; }
+
+function goBack() {
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('how-section').style.display = 'block';
+  document.getElementById('url-input').value = '';
+  document.getElementById('error-msg').style.display = 'none';
+  const t = T[lang];
+  document.getElementById('back-btn').textContent = lang === 'ru' ? '← Назад' : '← Back';
+}
 
 function renderHowCards() {
   const t = T[lang];
@@ -452,7 +467,7 @@ async function analyze() {
 }
 
 // Init
-renderHowCards();
+setLang('en');
 document.getElementById('how-section').style.display = 'block';
 </script>
 </body>
