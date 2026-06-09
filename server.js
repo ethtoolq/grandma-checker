@@ -318,8 +318,6 @@ function getFindings(m, lang) {
 
 // ── API ───────────────────────────────────────────────────────────────────────
 
-const fs = require('fs');
-
 const notifyLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 3,
@@ -334,20 +332,8 @@ app.post('/api/notify', notifyLimiter, (req, res) => {
     return res.status(400).json({ error: 'Invalid email' });
   }
   const clean = email.trim().toLowerCase();
-  const file  = path.join(__dirname, 'waitlist.txt');
-  try {
-    if (fs.existsSync(file)) {
-      const existing = fs.readFileSync(file, 'utf8');
-      if (existing.includes(clean)) return res.json({ ok: true });
-    }
-    fs.appendFileSync(file, `${clean}\n`, 'utf8');
-    const total = fs.readFileSync(file, 'utf8').trim().split('\n').length;
-    console.log(`[waitlist] +${clean} (total: ${total})`);
-    res.json({ ok: true });
-  } catch (err) {
-    console.error('[notify]', err.message);
-    res.status(500).json({ error: 'Could not save email' });
-  }
+  console.log(`[waitlist] ${clean}`);
+  res.json({ ok: true });
 });
 
 app.post('/api/analyze', apiLimiter, async (req, res) => {
