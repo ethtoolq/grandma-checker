@@ -1,8 +1,5 @@
 'use strict';
 
-const { File } = require('buffer');
-global.File = File;
-
 const express   = require('express');
 const cheerio   = require('cheerio');
 const rateLimit = require('express-rate-limit');
@@ -317,6 +314,38 @@ function getFindings(m, lang) {
 }
 
 // ── API ───────────────────────────────────────────────────────────────────────
+
+const fs = require('fs');
+
+const notifyLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (_req, res) => res.status(429).json({ error: 'Too many requests' }),
+});
+
+app.post('/api/notify', notifyLimiter, (req, res) => {
+  const { email } = req.body;
+  if (!email || typeof email !== 'string' || !email.includes('@') || email.length > 200) {
+    return res.status(400).json({ error: 'Invalid email' });
+  }
+  const clean = email.trim().toLowerCase();
+  const file  = path.join(__dirname, 'waitlist.txt');
+  try {
+    if (fs.existsSync(file)) {
+      const existing = fs.readFileSync(file, 'utf8');
+      if (existing.includes(clean)) return res.json({ ok: true });
+    }
+    fs.appendFileSync(file, `${clean}\n`, 'utf8');
+    const total = fs.readFileSync(file, 'utf8').trim().split('\n').length;
+    console.log(`[waitlist] +${clean} (total: ${total})`);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[notify]', err.message);
+    res.status(500).json({ error: 'Could not save email' });
+  }
+});
 
 app.post('/api/analyze', apiLimiter, async (req, res) => {
   const { lang = 'ru' } = req.body;

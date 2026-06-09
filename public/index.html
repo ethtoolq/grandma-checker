@@ -302,8 +302,24 @@
       <div class="pro-feature"><span class="pro-feature-check">✓</span><span id="pf3">API access — check sites from your scripts</span></div>
       <div class="pro-feature"><span class="pro-feature-check">✓</span><span id="pf4">Check history (last 50 results)</span></div>
     </div>
-    <button class="pro-notify-btn" onclick="notifyMe()" id="notify-btn">🔔 Notify me when it's ready</button>
-    <div class="pro-note" id="pro-note">No payment required. We'll email you on launch.</div>
+    <div id="notify-form">
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input type="email" id="notify-email" placeholder="your@email.com" style="
+          flex:1;padding:12px 14px;border-radius:10px;font-size:14px;
+          border:1px solid #3A3A3A;background:#0E0E0E;color:#EBEBEB;
+          font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s
+        " onkeydown="if(event.key==='Enter')notifyMe()"
+          onfocus="this.style.borderColor='#FBBF24'"
+          onblur="this.style.borderColor='#3A3A3A'"/>
+        <button class="pro-notify-btn" onclick="notifyMe()" id="notify-btn" style="white-space:nowrap;padding:12px 16px">
+          🔔 <span id="notify-btn-text">Notify me</span>
+        </button>
+      </div>
+      <div class="pro-note" id="pro-note">No payment required. We'll email you on launch.</div>
+    </div>
+    <div id="notify-success" style="display:none;padding:14px;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);border-radius:10px;color:#86EFAC;font-size:14px;text-align:center" id="notify-success">
+      ✓ <span id="notify-success-text">You're on the list! We'll email you when Pro launches.</span>
+    </div>
     <div style="margin-top:16px">
       <button onclick="hidePro()" style="background:none;border:none;color:var(--dim);font-size:13px;cursor:pointer;font-family:var(--font);" id="back-pro-btn">← Back</button>
     </div>
@@ -316,11 +332,11 @@ const T = {
   ru: {
     subtitle: 'Проверяем сайты на «бабушкопригодность»',
     inputLabel: 'Введите адрес сайта',
-    ph: 'yandex.ru или https://google.com',
+    ph: 'google.com или https://vk.com',
     btn: '🔍 Проверить',
     tryLabel: 'Попробовать:',
     err: 'Не удалось загрузить. Попробуйте другой URL.',
-    loadMsgs: ['Надеваем очки на верёвочке…','Считаем непонятные кнопки…','Ищем шрифт покрупнее…','Спрашиваем соседку Люду…','Замеряем уровень паники…','Анализируем с пристрастием…'],
+    loadMsgs: ['(・・?) Надеваем очки на верёвочке…','(눈_눈) Считаем непонятные кнопки…','(￣ω￣) Ищем шрифт покрупнее…','(・ω・)ノ Спрашиваем соседку Люду…','(╥﹏╥) Замеряем уровень паники…','(￣ー￣) Анализируем с пристрастием…'],
     scoreLabel: s => s>=80?'(ᵔᴥᵔ) Бабушка справится!':s>=60?'(・・?) Бабушка попробует…':s>=40?'(╥﹏╥) Бабушка нервничает':'(ノಠ益ಠ)ノ Бабушка уже ушла!',
     probTitle: 'ВЕРОЯТНОСТЬ УСПЕХА',
     probSub: 'бабушка справится',
@@ -345,7 +361,7 @@ const T = {
     btn: '🔍 Check',
     tryLabel: 'Try:',
     err: 'Failed to load. Try a different URL.',
-    loadMsgs: ['Adjusting reading glasses…','Counting all the tiny buttons…','Looking for a bigger font…','Asking neighbor Dorothy…','Measuring panic levels…','Analyzing thoroughly…'],
+    loadMsgs: ['(・・?) Adjusting reading glasses…','(눈_눈) Counting all the tiny buttons…','(￣ω￣) Looking for a bigger font…','(・ω・)ノ Asking neighbor Dorothy…','(╥﹏╥) Measuring panic levels…','(￣ー￣) Analyzing thoroughly…'],
     scoreLabel: s => s>=80?'(ᵔᴥᵔ) Grandma can do it!':s>=60?'(・・?) Grandma will try…':s>=40?'(╥﹏╥) Grandma is nervous':'(ノಠ益ಠ)ノ Grandma already left!',
     probTitle: 'SUCCESS PROBABILITY',
     probSub: 'grandma will succeed',
@@ -406,13 +422,35 @@ function hidePro() {
   document.getElementById('how-section').style.display = 'block';
 }
 
-function notifyMe() {
+async function notifyMe() {
+  const email = document.getElementById('notify-email').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('notify-email').style.borderColor = '#F87171';
+    setTimeout(() => document.getElementById('notify-email').style.borderColor = '#3A3A3A', 2000);
+    return;
+  }
   const btn = document.getElementById('notify-btn');
-  btn.textContent = lang === 'ru' ? '✓ Вы в списке!' : '✓ You\'re on the list!';
-  btn.style.background = 'rgba(74,222,128,.1)';
-  btn.style.borderColor = 'rgba(74,222,128,.3)';
-  btn.style.color = '#4ADE80';
   btn.disabled = true;
+  document.getElementById('notify-btn-text').textContent = lang === 'ru' ? 'Сохраняем...' : 'Saving...';
+  try {
+    const res = await fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, lang }),
+    });
+    if (res.ok) {
+      document.getElementById('notify-form').style.display = 'none';
+      document.getElementById('notify-success').style.display = 'block';
+      document.getElementById('notify-success-text').textContent = lang === 'ru'
+        ? 'Вы в списке! Напишем когда Pro запустится.'
+        : "You're on the list! We'll email you when Pro launches.";
+    } else {
+      throw new Error();
+    }
+  } catch {
+    btn.disabled = false;
+    document.getElementById('notify-btn-text').textContent = lang === 'ru' ? 'Попробуй снова' : 'Try again';
+  }
 }
 
 function updateProLang() {
@@ -425,7 +463,8 @@ function updateProLang() {
   document.getElementById('pro-note').textContent    = ru ? 'Оплата не нужна. Напишем когда запустим.' : 'No payment required. We\'ll email you on launch.';
   document.getElementById('back-pro-btn').textContent = ru ? '← Назад' : '← Back';
   const nb = document.getElementById('notify-btn');
-  if (!nb.disabled) nb.textContent = ru ? '🔔 Уведомить меня о запуске' : '🔔 Notify me when it\'s ready';
+  if (!nb.disabled) document.getElementById('notify-btn-text').textContent = ru ? 'Уведомить меня' : 'Notify me';
+  document.getElementById('notify-email').placeholder = ru ? 'твой@email.com' : 'your@email.com';
 }
 
 function setUrl(u) { document.getElementById('url-input').value = u; }
